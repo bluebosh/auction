@@ -9,6 +9,8 @@ import (
 	"code.cloudfoundry.org/rep"
 
 	"code.cloudfoundry.org/clock"
+
+	opentracing "github.com/opentracing/opentracing-go"
 )
 
 type Batch struct {
@@ -29,6 +31,10 @@ func NewBatch(clock clock.Clock) *Batch {
 }
 
 func (b *Batch) AddLRPStarts(starts []auctioneer.LRPStartRequest) {
+
+	span := opentracing.GlobalTracer().StartSpan("AddLRPStarts")
+	defer span.Finish()
+
 	auctions := make([]auctiontypes.LRPAuction, 0, len(starts))
 	now := b.clock.Now()
 	for i := range starts {
